@@ -2,6 +2,8 @@ package ru.kata.spring.boot_security.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -67,20 +69,60 @@ public class UserService implements UserServiceInterface, UserDetailsService {
 
     @Override
     @Transactional
-    public void deleteUserById(Integer id, Principal principal) {
+    public ResponseEntity<?> deleteUserById(Integer id, Principal principal) {
+        if (getUserById(id).getUsername().equals(principal.getName())) {
+            userDao.deleteById(id, principal);
+            return ResponseEntity.ok("logout");
+        }
+
         userDao.deleteById(id, principal);
+        return ResponseEntity.ok("deleted");
     }
 
     @Override
     @Transactional
-    public void updateUser(Integer id, User user) {
-       userDao.update(id, user);
+    public ResponseEntity<?> saveUser(Integer id, User user, Principal principal) {
+        if (id == null) {
+            // Логика создания нового пользователя
+            createUser(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        }
+        String check = "";
+        if (getUserById(id).getUsername().equals(principal.getName())){
+            check = "admin";
+        }
+        User existingUser = getUserById(id);
+        if (existingUser == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        existingUser.setName(user.getName());
+        existingUser.setLastName(user.getLastName());
+        existingUser.setAge(user.getAge());
+        existingUser.setUsername(user.getUsername());
+
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        Set<Role> managedRoles = new HashSet<>();
+        for (Role role : user.getRoles()) {
+            Role existingRole = userDao.findRoleByName(role.getName());
+            managedRoles.add(Objects.requireNonNullElse(existingRole, role));
+        }
+        existingUser.setRoles(managedRoles);
+
+        if (check.equals("admin")) {
+            userDao.saveUser(existingUser);
+            return ResponseEntity.ok("logout");
+        }
+        userDao.saveUser(existingUser);
+        return ResponseEntity.ok(existingUser);
     }
 
     @Override
     @Transactional
-    public User saveUser(User user) {
-        return userDao.saveUser(user);
+    public void updateUser(Integer id, User user) {userDao.update(id, user);
     }
 
     @Override

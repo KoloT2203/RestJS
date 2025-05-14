@@ -28,8 +28,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/admin/**").hasRole("ADMIN") // Только для ADMIN
-                .antMatchers("/user").hasAnyRole("USER", "ADMIN") // Для USER и ADMIN
-                .antMatchers("/", "/login").permitAll()
+                .antMatchers("/user").hasAnyRole("USER", "ADMIN")// Для USER и ADMIN
+                .antMatchers("/", "/login", "/dashboard", "/static/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
@@ -38,7 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .logout()
-                .logoutUrl("/logout")
+                .logoutUrl("/api/auth/logout")
                 .logoutSuccessUrl("/login?logout")
                 .invalidateHttpSession(true)    // Очистка сессии
                 .deleteCookies("JSESSIONID")
