@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.service.UserService;
 import ru.kata.spring.boot_security.demo.service.UserServiceInterface;
 
 import javax.servlet.ServletException;
@@ -21,7 +20,7 @@ public class MainRestController {
     private final UserServiceInterface userService;
 
     @Autowired
-    public MainRestController(UserService userService) {
+    public MainRestController(UserServiceInterface userService) {
         this.userService = userService;
     }
 

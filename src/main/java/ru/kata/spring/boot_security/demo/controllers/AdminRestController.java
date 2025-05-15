@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.service.UserService;
 import ru.kata.spring.boot_security.demo.service.UserServiceInterface;
 
 import java.security.Principal;
@@ -20,7 +19,7 @@ public class AdminRestController {
     private final UserServiceInterface userService;
 
     @Autowired
-    public AdminRestController(UserService userService) {
+    public AdminRestController(UserServiceInterface userService) {
         this.userService = userService;
     }
 
